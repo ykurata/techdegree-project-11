@@ -24,5 +24,4 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
     url(r'^api-token-auth/', views.obtain_auth_token),
-    url(r'^api/dog/',include('pugorugh.urls', namespace='dog')),
 ]

@@ -9,6 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
+        """ Overriding the default create method of the Model serializer."""
         user = get_user_model().objects.create(
             username=validated_data['username'],
         )
@@ -20,9 +21,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
 
 
+
 class DogSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
+            'id',
             'name',
             'image_filename',
             'breed',
@@ -31,6 +34,16 @@ class DogSerializer(serializers.ModelSerializer):
             'size'
         )
         model = models.Dog
+
+
+class UserDogSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields =(
+            'user',
+            'dog',
+            'status'
+        )
+        model = models.UserDog
 
 
 class UserPrefSerializer(serializers.ModelSerializer):
