@@ -48,11 +48,11 @@ class UserDogSerializer(serializers.ModelSerializer):
 
 class UserPrefSerializer(serializers.ModelSerializer):
     class Meta:
-        extra_kwargs = {
-            'user': {'write_only': True}
-        }
+        #extra_kwargs = {
+        #    'user': {'write_only': True}
+        #}
         fields = (
-            'user',
+        #    'user',
             'age',
             'gender',
             'size'

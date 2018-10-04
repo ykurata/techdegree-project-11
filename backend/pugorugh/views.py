@@ -21,19 +21,13 @@ class RetrieveUpdateUserPref(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.UserPrefSerializer
 
     def get_object(self):
+        user = self.request.user
+        return models.UserPref.objects.get(user=user)
+        """
         return get_object_or_404(
             self.get_queryset(),
             user=self.request.user)
-
-    def put(self, request, *args, **kwargs):
-        user_pref = self.get_object()
-        pref_serializer = serializers.UserPrefSerializer(
-            user_pref, request.data)
-        if pref_serializer.is_valid():
-            pref_serializer.save()
-            return Response(pref_serializer.data)
-        return Response(pref_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        """
 
 class RetrieveDog(generics.RetrieveAPIView):
     #queryset = models.Dog.objects.all()

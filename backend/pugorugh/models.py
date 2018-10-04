@@ -35,24 +35,24 @@ class Dog(models.Model):
     size = models.CharField(max_length=10, choices=SIZE_CHOICES)
     age_group = models.CharField(max_length=10, default="b")
 
-    def __str__(self):
-        return self.name
-
-
+    @property
     def get_age_group(self):
-        if self.age <= 12:
+        """Return an age group for a given Dog"""
+        if self.age < 10:
             return 'b'
-        elif self.age in range(12, 24):
+        elif self.age < 30:
             return 'y'
-        elif self.age in range(24, 72):
+        elif self.age < 60:
             return 'a'
         else:
             return 's'
 
-
     def save(self, *args, **kwargs):
-        self.age_group = self.get_age_group()
+        self.age_group = self.get_age_group
         super(Dog, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
 class UserDog(models.Model):
@@ -76,58 +76,29 @@ class UserDog(models.Model):
 
 
 class UserPref(models.Model):
-    BABY = "b"
-    YOUNG = "y"
-    ADULT = "a"
-    SENIOR = "s"
-    AGE_CHOICES = (
-        (BABY, "Baby"),
-        (YOUNG, "Young"),
-        (ADULT, "Adult"),
-        (SENIOR, "Senior")
-    )
-
-    MALE = "m"
-    FEMALE = "f"
-    GENDER_CHOICES = (
-        (MALE, "Male"),
-        (FEMALE, "Female")
-    )
-
-    SMALL = "s"
-    MEDIUM = "m"
-    LARGE = "l"
-    EXTRA_LARGE = "xl"
-    SIZE_CHOICES = (
-        (SMALL, "Small"),
-        (MEDIUM, "Medium"),
-        (LARGE, "Large"),
-        (EXTRA_LARGE, "Extra large")
-    )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="user_pref")
     age = models.CharField(
         max_length=10,
-        choices=AGE_CHOICES,
         default='b,y,a,s')
     gender = models.CharField(
         max_length=10,
-        choices=GENDER_CHOICES,
         default='m,f')
     size = models.CharField(
         max_length=10,
-        choices=SIZE_CHOICES,
         default='s,m,l,xl')
 
     def __str__(self):
         return '{}'.format(str(self.user))
 
-
 @receiver(post_save, sender=User)
-def create_user_preference(sender, instance, created, **kwargs):
+def create_user_preferences(sender, instance, created, **kwargs):
     if created:
-        UserPref.objects.created(user=instance)
+        UserPref.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)
-def save_user_preference(sender, instance, **kwargs):
+def save_user_preferences(sender, instance, **kwargs):
     instance.user_pref.save()

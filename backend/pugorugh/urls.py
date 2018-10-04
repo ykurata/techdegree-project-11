@@ -25,7 +25,7 @@ urlpatterns = format_suffix_patterns([
     url(r'^api/dog/(?P<pk>\d+)/(liked|disliked|undecided)/next/$',
         views.RetrieveDog.as_view(),
         name='next'),
-    url(r'^api/user/preference/(?P<pk>\d+)/$',
+    url(r'^api/user/preferences/$',
         views.RetrieveUpdateUserPref.as_view(),
-        name='user_pref_detail'),
+        name='user_pref'),
 ])
