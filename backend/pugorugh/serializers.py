@@ -15,11 +15,27 @@ class UserSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
+
+        user_pref = modesl.UserPref.objects.create(
+            user=user
+        )
+        user_pref.save()
+        user.save()
+        self.user_dog_status(user)
         return user
+
+    def user_dog_status(self, user):
+        dogs = models.Dog.objects.all()
+        for dog in dogs:
+            user_dog = models.UserDog.objects.create(
+                user=user,
+                dog=dog,
+                status='u'
+            )
+            user_dog.save()
 
     class Meta:
         model = get_user_model()
-
 
 
 class DogSerializer(serializers.ModelSerializer):

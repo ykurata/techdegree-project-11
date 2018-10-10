@@ -18,13 +18,17 @@ urlpatterns = format_suffix_patterns([
             url='/static/icons/favicon.ico',
             permanent=True
         )),
+
     url(r'^$', TemplateView.as_view(template_name='index.html')),
-    url(r'^api/dog/(?P<pk>\d+)/(liked|disliked|undecided)/$',
-        views.DecisionView.as_view(),
+
+    url(r'^api/dog/(?P<pk>\d+)/(?P<status>liked|disliked|undecided)/$',
+        views.UpdateDog.as_view(),
         name='change_status'),
-    url(r'^api/dog/(?P<pk>\d+)/(liked|disliked|undecided)/next/$',
+
+    url(r'^api/dog/(?P<pk>-?\d+)/(?P<status>liked|disliked|undecided)/next/$',
         views.RetrieveDog.as_view(),
         name='next'),
+
     url(r'^api/user/preferences/$',
         views.RetrieveUpdateUserPref.as_view(),
         name='user_pref'),

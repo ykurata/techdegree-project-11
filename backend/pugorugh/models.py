@@ -64,8 +64,12 @@ class UserDog(models.Model):
         (DISLIKED, "Disliked"),
         (UNKNOWN, "Unkown")
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    dog = models.ForeignKey(Dog, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE)
+    dog = models.ForeignKey(
+        Dog,
+        on_delete=models.CASCADE)
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES)
@@ -92,6 +96,7 @@ class UserPref(models.Model):
 
     def __str__(self):
         return '{}'.format(str(self.user))
+
 
 @receiver(post_save, sender=User)
 def create_user_preferences(sender, instance, created, **kwargs):
