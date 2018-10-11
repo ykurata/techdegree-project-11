@@ -35,22 +35,6 @@ class Dog(models.Model):
     size = models.CharField(max_length=10, choices=SIZE_CHOICES)
     age_group = models.CharField(max_length=10, default="b")
 
-    @property
-    def get_age_group(self):
-        """Return an age group for a given Dog"""
-        if self.age < 10:
-            return 'b'
-        elif self.age < 30:
-            return 'y'
-        elif self.age < 60:
-            return 'a'
-        else:
-            return 's'
-
-    def save(self, *args, **kwargs):
-        self.age_group = self.get_age_group
-        super(Dog, self).save(*args, **kwargs)
-
     def __str__(self):
         return self.name
 
@@ -64,6 +48,7 @@ class UserDog(models.Model):
         (DISLIKED, "Disliked"),
         (UNKNOWN, "Unkown")
     )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE)
@@ -96,14 +81,3 @@ class UserPref(models.Model):
 
     def __str__(self):
         return '{}'.format(str(self.user))
-
-
-@receiver(post_save, sender=User)
-def create_user_preferences(sender, instance, created, **kwargs):
-    if created:
-        UserPref.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_preferences(sender, instance, **kwargs):
-    instance.user_pref.save()

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -6,7 +7,6 @@ from django.http import Http404
 
 from rest_framework import generics, permissions, status
 from rest_framework.generics import CreateAPIView
-#from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from . import models
@@ -28,7 +28,6 @@ class RetrieveUpdateUserPref(generics.RetrieveUpdateAPIView):
             self.get_queryset(),
             user=self.request.user)
 
-
 class RetrieveDog(generics.RetrieveAPIView):
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
@@ -38,43 +37,54 @@ class RetrieveDog(generics.RetrieveAPIView):
         user_pref = models.UserPref.objects.get(user=user)
         user_choice = self.kwargs.get('choice')
 
-        age = user_pref.age
-        size = user_pref.size
-        gender = user_pref.gender
+        age_group = []
+        if 'b' in user_pref.age:
+            for i in range(0, 10):
+                age_group.append(i)
+        if 'y' in user_pref.age:
+            for i in range(10, 30):
+                age_group.append(i)
+        if 'a' in user_pref.age:
+            for i in range(30, 70):
+                age_group.append(i)
+        if 's' in user_pref.age:
+            for i in range(70, 999):
+                age_group.append(i)
 
-        matching_dogs = models.Dog.objects.all()
+        matching_dogs = models.Dog.objects.filter(
+            age__in=age_group,
+            size__in=user_pref.size,
+            gender__in=user_pref.gender
+        )
 
         if user_choice == 'undecided':
-            matching_dogs = models.Dog.objects.filter(
-                age__in=age,
-                size__in=size,
-                gender__in=gender,
-                user_dog__status='u',
-                user_dog__user=user
-            ).order_by('pk')
-
-        elif user_choice == 'disliked':
-            matching_dogs = models.Dog.objects.filter(
-                user_dog__status='d',
-                user_dog__user=user
-            ).order_by('pk')
+            matching_dogs = matching_dogs.filter(
+                userdog__status='u',
+                userdog__user=user
+            )
 
         elif user_choice == 'liked':
             matching_dogs = models.Dog.objects.filter(
-                user_dog__status='l',
-                user_dog__user=user
-            ).order_by('pk')
+                userdog__status='l',
+                userdog__user=user
+            )
+
+        elif user_choice == 'disliked':
+            matching_dogs = models.Dog.objects.filter(
+                userdog__status='d',
+                userdog__user=user
+            )
 
         return matching_dogs
 
 
     def get_object(self):
-        pk = int(self.kwargs.get('pk'))
+        pk = self.kwargs.get('pk')
         dog = self.get_queryset().filter(id__gt=pk).first()
-        if dog:
-            return dog
+        if not dog:
+            raise Http404
         else:
-            return self.get_queryset().first()
+            return dog
 
 
 class UpdateDog(generics.UpdateAPIView):
@@ -87,15 +97,15 @@ class UpdateDog(generics.UpdateAPIView):
         dog = get_object_or_404(models.Dog, pk=pk)
         return dog
 
-    def update(self, request, status, *args, **kwargs):
-        status = self.kwargs.get('status')
+    def update(self, request, *args, **kwargs):
+        user_choice = self.kwargs.get('choice')
 
-        if status == 'liked':
-            status = 'l'
-        elif status == 'disliked':
-            status = 'd'
+        if user_choice == 'liked':
+            choice = 'l'
+        elif user_choice == 'disliked':
+            choice = 'd'
         else:
-            status = 'u'
+            choice = 'u'
 
         instance = self.get_object()
         #instance.status = request.data.get('status')
@@ -103,7 +113,7 @@ class UpdateDog(generics.UpdateAPIView):
 
         serializer = self.get_serializer(
             instance,
-            data={'status':status},
+            data={'user_choice':choice},
             partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)

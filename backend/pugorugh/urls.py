@@ -21,11 +21,11 @@ urlpatterns = format_suffix_patterns([
 
     url(r'^$', TemplateView.as_view(template_name='index.html')),
 
-    url(r'^api/dog/(?P<pk>\d+)/(?P<status>liked|disliked|undecided)/$',
+    url(r'^api/dog/(?P<pk>\d+)/(?P<choice>liked|disliked|undecided)/$',
         views.UpdateDog.as_view(),
-        name='change_status'),
+        name='change'),
 
-    url(r'^api/dog/(?P<pk>-?\d+)/(?P<status>liked|disliked|undecided)/next/$',
+    url(r'^api/dog/(?P<pk>-?\d+)/(?P<choice>liked|disliked|undecided)/next/$',
         views.RetrieveDog.as_view(),
         name='next'),
 
