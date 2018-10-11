@@ -42,11 +42,11 @@ class Dog(models.Model):
 class UserDog(models.Model):
     LIKED = "l"
     DISLIKED = "d"
-    UNKNOWN = "u"
+    UNDECIDED = "u"
     STATUS_CHOICES = (
         (LIKED, "Liked"),
         (DISLIKED, "Disliked"),
-        (UNKNOWN, "Unkown")
+        (UNDECIDED, "Undecided")
     )
 
     user = models.ForeignKey(

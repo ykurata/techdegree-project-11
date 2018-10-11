@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,7 +7,6 @@ from django.http import Http404
 from rest_framework import generics, permissions, status
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-
 from . import models
 from . import serializers
 
@@ -27,6 +25,7 @@ class RetrieveUpdateUserPref(generics.RetrieveUpdateAPIView):
         return get_object_or_404(
             self.get_queryset(),
             user=self.request.user)
+
 
 class RetrieveDog(generics.RetrieveAPIView):
     queryset = models.Dog.objects.all()
@@ -54,26 +53,22 @@ class RetrieveDog(generics.RetrieveAPIView):
         matching_dogs = models.Dog.objects.filter(
             age__in=age_group,
             size__in=user_pref.size,
-            gender__in=user_pref.gender
-        )
+            gender__in=user_pref.gender)
 
         if user_choice == 'undecided':
             matching_dogs = matching_dogs.filter(
                 userdog__status='u',
-                userdog__user=user
-            )
+                userdog__user=user)
 
         elif user_choice == 'liked':
             matching_dogs = models.Dog.objects.filter(
                 userdog__status='l',
-                userdog__user=user
-            )
+                userdog__user=user)
 
         elif user_choice == 'disliked':
             matching_dogs = models.Dog.objects.filter(
                 userdog__status='d',
-                userdog__user=user
-            )
+                userdog__user=user)
 
         return matching_dogs
 
@@ -91,13 +86,9 @@ class UpdateDog(generics.UpdateAPIView):
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
-    def get_queryset(self):
-        pk = int(self.kwargs.get('pk'))
-
+    def put(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
         dog = get_object_or_404(models.Dog, pk=pk)
-        return dog
-
-    def update(self, request, *args, **kwargs):
         user_choice = self.kwargs.get('choice')
 
         if user_choice == 'liked':
@@ -105,17 +96,10 @@ class UpdateDog(generics.UpdateAPIView):
         elif user_choice == 'disliked':
             choice = 'd'
         else:
-            choice = 'u'
+            choice ='u'
 
-        instance = self.get_object()
-        #instance.status = request.data.get('status')
-        #instance.save()
-
-        serializer = self.get_serializer(
-            instance,
-            data={'user_choice':choice},
-            partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        return Response(serilalizer.data)
+        userdog = models.UserDog.objects.get(user=self.request.user, dog=dog)
+        userdog.status = choice
+        userdog.save()
+        serializer = serializers.DogSerializer(dog)
+        return Response(serializer.data)
