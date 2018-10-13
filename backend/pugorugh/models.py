@@ -33,7 +33,6 @@ class Dog(models.Model):
     age = models.IntegerField()
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     size = models.CharField(max_length=10, choices=SIZE_CHOICES)
-    age_group = models.CharField(max_length=10, default="b")
 
     def __str__(self):
         return self.name

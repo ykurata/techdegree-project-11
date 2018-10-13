@@ -26,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
     def user_dog_status(self, user):
+        """Create userdog status to undecided"""
         dogs = models.Dog.objects.all()
         for dog in dogs:
             user_dog = models.UserDog.objects.create(
@@ -65,11 +66,7 @@ class UserDogSerializer(serializers.ModelSerializer):
 
 class UserPrefSerializer(serializers.ModelSerializer):
     class Meta:
-        #extra_kwargs = {
-        #    'user': {'write_only': True}
-        #}
         fields = (
-        #    'user',
             'age',
             'gender',
             'size'

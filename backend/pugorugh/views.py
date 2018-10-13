@@ -12,12 +12,14 @@ from . import serializers
 
 
 class UserRegisterView(CreateAPIView):
+    """Register a new user."""
     permission_classes = (permissions.AllowAny,)
     model = get_user_model()
     serializer_class = serializers.UserSerializer
 
 
 class RetrieveUpdateUserPref(generics.RetrieveUpdateAPIView):
+    """Retrieve and Update user's dog preference."""
     queryset = models.UserPref.objects.all()
     serializer_class = serializers.UserPrefSerializer
 
@@ -32,6 +34,7 @@ class RetrieveDog(generics.RetrieveAPIView):
     serializer_class = serializers.DogSerializer
 
     def get_queryset(self):
+        """Get dogs matching user's preference."""
         user = self.request.user
         user_pref = models.UserPref.objects.get(user=user)
         user_choice = self.kwargs.get('choice')
@@ -74,6 +77,7 @@ class RetrieveDog(generics.RetrieveAPIView):
 
 
     def get_object(self):
+        """Get a dog from matching dog queryset."""
         pk = self.kwargs.get('pk')
         dog = self.get_queryset().filter(id__gt=pk).first()
         if not dog:
@@ -83,6 +87,7 @@ class RetrieveDog(generics.RetrieveAPIView):
 
 
 class UpdateDog(generics.UpdateAPIView):
+    """Update dog's status"""
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
